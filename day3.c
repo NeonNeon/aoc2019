@@ -97,6 +97,9 @@ static bool add_coordinates(Walker *walker,
     }
     return true;
 }
+int total_steps(Coordinate left, Coordinate right) {
+    return left.nbr_steps + right.nbr_steps;
+}
 
 int manhattan(Coordinate left, Coordinate right) {
     int distance =  abs(left.x - right.x) + abs(left.y - right.y);
@@ -104,7 +107,7 @@ int manhattan(Coordinate left, Coordinate right) {
     return distance;
 }
 
-static Coordinate find_closest(Walker *left, Walker *right) {
+static Coordinate find_closest(Walker *left, Walker *right, boolean problem_two) {
     Coordinate closest = {0, 0, 0};
     int min_distance = 999999999;
     Coordinate l_iter;
@@ -112,20 +115,32 @@ static Coordinate find_closest(Walker *left, Walker *right) {
     int new_distance;
     for (int i = 0; i< left->nbr_visited_coordinates; i++ ) {
         l_iter = left->visited_coordinates[i];
-        new_distance = manhattan(l_iter, (Coordinate) {0,0});
-        if (new_distance >= min_distance) {
-            continue;
+        if(!problem_two) {
+            new_distance = manhattan(l_iter, (Coordinate) {0,0,0});
+            if (new_distance >= min_distance) {
+                continue;
+            }
         }
         for (int j = 0; j< right->nbr_visited_coordinates; j++ ) {
             r_iter = right->visited_coordinates[j];
             if (l_iter.x == r_iter.x && l_iter.y == r_iter.y) {
                 printf("They share (%d, %d)\n", l_iter.x, l_iter.y);
-                min_distance = new_distance;
-                closest = r_iter; /* Either is fine */
+                if (problem_two) {
+                    new_distance = total_steps(l_iter, r_iter);
+                    if (new_distance < min_distance) {
+                        min_distance = new_distance;
+                        closest = r_iter;
+                    }
+                } else {
+                    /* Problem 1 */
+                    min_distance = new_distance;
+                    closest = r_iter;
+                }
                 break; /* inner loop */
             }
         }
     }
+    printf("MINIMUM STEPS: %d", min_distance);
     return closest;
 }
 
@@ -209,7 +224,7 @@ char *solve_task(FILE *input, bool problem_two)
         printf("Read direction %c and steps %zu\n", direction, steps);
     }
 
-    Coordinate closest = find_closest(&first_walker, &second_walker);
+    Coordinate closest = find_closest(&first_walker, &second_walker, problem_two);
     int distance = manhattan(closest, (Coordinate) {0,0});
     printf("FINAL DISTANCE = %d\n", distance);
     char *output = calloc(50, sizeof(char));
