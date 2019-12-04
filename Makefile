@@ -7,3 +7,6 @@ day2: day2.c common_main.c solver.h
 day3: day3.c common_main.c solver.h
 	gcc -Wall -o day3 day3.c
 
+day4: day4.c common_main.c solver.h
+	gcc -Wall -o day4 day4.c
+
