@@ -4,18 +4,6 @@
 #include <string.h>
 #include "solver.h"
 
-#ifndef INPUT_ONE_FILE_PATH
-#error Need to define INPUT_ONE_FILE_PATH before including common_main.c
-#endif
-
-#ifndef INPUT_TWO_FILE_PATH
-#error Need to define INPUT_TWO_FILE_PATH before including common_main.c
-#endif
-
-#ifndef NBR_TEST_CASES
-#error Need to define NBR_TEST_CASES before including common_main.c
-#endif
-
 static void print_help_text_and_exit(char **argv);
 static void run_tests(void);
 
@@ -37,13 +25,12 @@ int main(int argc, char **argv)
     bool run_second_problem;
     if (nbr == 1) {
         run_second_problem = false;
-        stream = fopen(INPUT_ONE_FILE_PATH, "r");
     } else if (nbr == 2) {
         run_second_problem = true;
-        stream = fopen(INPUT_TWO_FILE_PATH, "r");
     } else {
         print_help_text_and_exit(argv);
     }
+    stream = fopen(get_input_file(run_second_problem), "r");
     
     if (stream == NULL) {
         perror("common_main failed to open file");
@@ -67,7 +54,12 @@ void print_help_text_and_exit(char **argv)
 
 void run_tests(void)
 {
-    for(int i = 0; i < NBR_TEST_CASES; i++) {
+    size_t nbr_of_test_cases = 0;
+    Test_Case *test_cases = get_test_cases(&nbr_of_test_cases);
+    if (!test_cases || nbr_of_test_cases == 0) {
+        printf("No test cases avaliable!\n");
+    }
+    for(int i = 0; i < nbr_of_test_cases; i++) {
         Test_Case t = test_cases[i];
         FILE *input_stream = tmpfile();
         fwrite(t.input, sizeof(char), strlen(t.input), input_stream);
@@ -87,4 +79,5 @@ void run_tests(void)
         }
         fclose(input_stream);
     }
+    free(test_cases);
 }

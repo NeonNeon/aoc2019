@@ -1,21 +1,59 @@
 #include "solver.h"
-#include "tests.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-#define INPUT_ONE_FILE_PATH ("input1.txt")
-#define INPUT_TWO_FILE_PATH ("input1.txt")
-#define NBR_TEST_CASES (7)
+Test_Case *get_test_cases(size_t *nbr_tests) {
+    *nbr_tests = 7;
+    Test_Case *test_cases = malloc((*nbr_tests) * sizeof(Test_Case));
+    test_cases[0] = (Test_Case)
+        {
+            .input = "12\n",
+            .expected_output = "2",
+            .problem_two = false
+        };
+    test_cases[1] = (Test_Case)
+        {
+            .input = "14\n",
+            .expected_output = "2",
+            .problem_two = false
+        };
+    test_cases[2] = (Test_Case)
+        {
+            .input = "1969\n",
+            .expected_output = "654",
+            .problem_two = false
+        };
+    test_cases[3] = (Test_Case)
+        {
+            .input = "100756\n",
+            .expected_output = "33583",
+            .problem_two = false
+        };
+    test_cases[4] = (Test_Case)
+        {
+            .input = "14\n",
+            .expected_output = "2",
+            .problem_two = true
+        };
+    test_cases[5] = (Test_Case)
+        {
+            .input = "1969\n",
+            .expected_output = "966",
+            .problem_two = true
+        };
+    test_cases[6] = (Test_Case)
+        {
+            .input = "100756\n",
+            .expected_output = "50346",
+            .problem_two = true
+        };
+    return test_cases;
+}
 
-Test_Case test_cases[NBR_TEST_CASES] = {{"12\n", "2", false},
-                                        {"14\n", "2", false},
-                                        {"1969\n", "654", false},
-                                        {"100756\n", "33583", false},
-                                        {"14\n", "2", true},
-                                        {"1969\n", "966", true},
-                                        {"100756\n", "50346", true}};
+char *get_input_file(bool problem_two) {
+    return "input1.txt";
+}
 
-#include "common_main.c"
 static long calculate_fuel(long mass);
 
 char *solve_task(FILE *input, bool problem_two)
