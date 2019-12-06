@@ -66,7 +66,7 @@ static long *get_program(char *text, int nbr_chars, int *nbr_of_numbers) {
         }
         long nbr = atol(text+i);
         program[index++] = nbr;
-        //printf("Found %ld\n", nbr); 
+        //printf("Found %ld\n", nbr);
         while(i < nbr_chars && text[i++]!=',');
     }
     *nbr_of_numbers = index;
@@ -74,7 +74,18 @@ static long *get_program(char *text, int nbr_chars, int *nbr_of_numbers) {
 }
 
 
-typedef enum OP_Code {ADD=1, MULT=2, STDIN_TO_PARAM=3, PARAM_TO_STDOUT=4, HALT=99} op_code_t;
+typedef enum OP_Code {
+    ADD=1,
+    MULT=2,
+    STDIN_TO_PARAM=3,
+    PARAM_TO_STDOUT=4,
+    JMP_TRUE=5,
+    JMP_FALSE=6,
+    LESS_THAN=7,
+    EQUALS=8,
+    HALT=99
+} op_code_t;
+
 typedef enum Parameter_Mode {Position=0, Immediate=1} para_mode_t;
 
 typedef struct Paramters {
@@ -85,20 +96,6 @@ typedef struct Paramters {
 static op_code_t get_op_code(long instruction) {
     /* last 2 digits of instruction */
     return instruction % 100;
-}
-
-static size_t get_nbr_of_arguments(op_code_t code) {
-    switch(code) {
-    case ADD:
-    case MULT:
-        return 3;
-    case STDIN_TO_PARAM:
-    case PARAM_TO_STDOUT:
-        return 1;
-    case HALT:
-        return 0;
-    }
-    return 0;
 }
 
 static para_mode_t get_parameter(long instruction, size_t argnum) {
@@ -114,7 +111,7 @@ static para_mode_t get_parameter(long instruction, size_t argnum) {
         mode = (instruction/10000) % 10;
         break;
     }
-    printf("Instruction: %ld\t mode:%d \t arg:%zu\n", instruction, mode, argnum);
+    /* printf("Instruction: %ld\t mode:%d \t arg:%zu\n", instruction, mode, argnum); */
     return mode;
 }
 
@@ -143,24 +140,35 @@ static void run_program(long *program, int nbr_of_numbers) {
         /* read instruction */
         long instruction = get_current_instruction(&state);
         op_code_t op_code = get_op_code(instruction);
-        printf("read opcode %d\n", op_code);
+        /* printf("read opcode %d\n", op_code); */
         if (op_code == HALT) break;
 
         /* read the parameter types */
         switch (op_code) {
         case ADD:
         case MULT:
+        case LESS_THAN:
+        case EQUALS:
             ;
             /* Look at the para_mode_t of 1 argument, if != 0 then IMMEDIATE,       else positional */
             long left = (get_parameter(instruction, 1)) ? state.program[state.pc+1] : state.program[state.program[state.pc+1]];
             long right = (get_parameter(instruction, 2)) ? state.program[state.pc+2] : state.program[state.program[state.pc+2]];
             long res;
-            if (op_code == ADD) {
+            switch (op_code) {
+            case ADD:
                 res = left + right;
-                printf("%ld+%ld=res\n", left, right, res);
-            } else {
+                /* printf("%ld+%ld=%ld\n", left, right, res); */
+                break;
+            case MULT:
                 res = left * right;
-                printf("%ld*%ld=%ld\n", left, right, res);
+                /* printf("%ld*%ld=%ld\n", left, right, res); */
+                break;
+            case LESS_THAN:
+                res = (left < right) ? 1 : 0;
+                break;
+            case EQUALS:
+                res = (left == right) ? 1 : 0;
+                break;
             }
             if (get_parameter(instruction, 3)) {
                 /* IMMEDIATE, should not happen */
@@ -168,7 +176,7 @@ static void run_program(long *program, int nbr_of_numbers) {
             } else {
                 /* positional */
                 state.program[state.program[state.pc+3]] = res;
-                printf("res strored in pos %ld\n", state.program[state.pc+3]);
+                /* printf("res strored in pos %ld\n", state.program[state.pc+3]); */
             }
             state.pc += 4;
             break;
@@ -197,11 +205,34 @@ static void run_program(long *program, int nbr_of_numbers) {
                 /* POS */
                 to_output = state.program[state.program[state.pc+1]];
             }
-            printf(">>>>>  %ld  <<<<\n", to_output);
+            printf(">>>>>  %ld  \n", to_output);
             state.pc+=2;
             break;
+        case JMP_FALSE:
+        case JMP_TRUE:
+            ; long if_arg; long addr;
+            if (get_parameter(instruction, 1)) {
+                if_arg = state.program[state.pc+1];
+            } else {
+                if_arg = state.program[state.program[state.pc+1]];
+            }
+            if (get_parameter(instruction, 2)) {
+                addr = state.program[state.pc+2];
+            } else {
+                addr = state.program[state.program[state.pc+2]];
+            }
+            if (op_code == JMP_TRUE && if_arg != 0) {
+                state.pc = addr;
+                /* printf("Since %ld is != 0 I will jump to %ld", if_arg, addr); */
+            } else if (op_code == JMP_FALSE && if_arg == 0) {
+                state.pc = addr;
+                /* printf("Since %ld is == 0 I will jump to %ld", if_arg, addr); */
+            } else {
+                state.pc += 3;
+            }
+            break;
         default:
-            printf("Got weird op code\n");
+            printf("Got weird op code %d\n", op_code);
             exit(EXIT_FAILURE);
         }
     }
@@ -220,7 +251,7 @@ static char *get_output_str(long *program, int nbr_of_numbers, int size_of_outpu
         char *format_str = (i == nbr_of_numbers - 1) ? "%ld" : "%ld,"; //no comma for last
         sprintf(buf, format_str, program[i]);
         int nbr_chars_to_add_to_output = strlen(buf);
-        
+
         if (length_used_of_output_str + nbr_chars_to_add_to_output > size_of_output_str) {
             //printf("has to reallocate");
             realloc(output, 2*size_of_output_str);
