@@ -1,7 +1,7 @@
 CC=gcc -c -Wall
 LD=gcc
-OBJ_FILES=day1.o day2.o day3.o day4.o common_main.o
-TARGETS=day1 day2 day3 day4
+OBJ_FILES=day1.o day2.o day3.o day4.o day5.o common_main.o
+TARGETS=day1 day2 day3 day4 day5
 
 common_main.o: common_main.c solver.h
 	$(CC) $^
@@ -28,6 +28,12 @@ day4.o: day4.c solver.h
 	$(CC) $^
 
 day4: day4.o common_main.o
+	$(LD) -o $@ $^
+
+day5.o: day5.c solver.h
+	$(CC) $^
+
+day5: day5.o common_main.o
 	$(LD) -o $@ $^
 
 clean:
