@@ -1,18 +1,34 @@
+CC=gcc -c -Wall
+LD=gcc
+OBJ_FILES=day1.o day2.o day3.o day4.o common_main.o
+TARGETS=day1 day2 day3 day4
+
 common_main.o: common_main.c solver.h
-	gcc -c -Wall common_main.c solver.h
+	$(CC) $^
 
-day1.o: day1.c
-	gcc -c -Wall day1.c solver.h
+day1.o: day1.c solver.h
+	$(CC) $^
 
-day1: day1.c common_main.o solver.h
-	gcc -o day1 day1.o common_main.o
+day1: day1.o common_main.o
+	$(LD) -o $@ $^
 
-day2: day2.c common_main.c solver.h
-	gcc -Wall -o day2 day2.c
+day2.o: day2.c solver.h
+	$(CC) $^
 
-day3: day3.c common_main.c solver.h
-	gcc -Wall -o day3 day3.c
+day2: day2.o common_main.o
+	$(LD) -o $@ $^
 
-day4: day4.c common_main.c solver.h
-	gcc -Wall -o day4 day4.c
+day3.o: day3.c solver.h
+	$(CC) $^
 
+day3: day3.o common_main.o
+	$(LD) -o $@ $^
+
+day4.o: day4.c solver.h
+	$(CC) $^
+
+day4: day4.o common_main.o
+	$(LD) -o $@ $^
+
+clean:
+	\rm $(OBJ_FILES) $(TARGETS)

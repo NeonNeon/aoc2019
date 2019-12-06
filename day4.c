@@ -1,23 +1,60 @@
 #include "solver.h"
-#include "tests.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-#define INPUT_ONE_FILE_PATH ("input4.txt")
-#define INPUT_TWO_FILE_PATH ("input4.txt")
-#define NBR_TEST_CASES (7)
+Test_Case *get_test_cases(size_t *nbr_tests) {
+    *nbr_tests = 7;
+    Test_Case *test_cases = malloc((*nbr_tests) * sizeof(Test_Case));
+    test_cases[0] = (Test_Case)
+        {
+            .input = "111111-111111",
+            .expected_output = "1",
+            .problem_two = false
+        };
+    test_cases[1] = (Test_Case)
+        {
+            .input = "223450-223450",
+            .expected_output = "0",
+            .problem_two = false
+        };
+    test_cases[2] = (Test_Case)
+        {
+            .input = "123789-123789",
+            .expected_output = "0",
+            .problem_two = false
+        };
+    test_cases[3] = (Test_Case)
+        {
+            .input = "112233-112233",
+            .expected_output = "1",
+            .problem_two = true
+        };
+    test_cases[4] = (Test_Case)
+        {
+            .input = "123444-123444",
+            .expected_output = "0",
+            .problem_two = true
+        };
+    test_cases[5] = (Test_Case)
+        {
+            .input = "556777-556777",
+            .expected_output = "1",
+            .problem_two = true
+        };
+    test_cases[7] = (Test_Case)
+        {
+            .input = "111122-111122",
+            .expected_output = "1",
+            .problem_two = true
+        };
+    return test_cases;
+}
 
-Test_Case test_cases[NBR_TEST_CASES] = {
-    {"111111-111111", "1", false},
-    {"223450-223450", "0", false},
-    {"123789-123789", "0", false},
-    {"112233-112233", "1", true},
-    {"123444-123444", "0", true},
-    {"556777-556777", "1", true},
-    {"111122-111122", "1", true}
-};
 
-#include "common_main.c"
+char *get_input_file(bool problem_two) {
+    return "input4.txt";
+}
+
 
 static bool valid_number(long nbr, bool problem_two) {
     static char buffer[50];

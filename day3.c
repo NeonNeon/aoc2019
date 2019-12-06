@@ -1,27 +1,39 @@
 #include "solver.h"
-#include "tests.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-#define INPUT_ONE_FILE_PATH ("input3.txt")
-#define INPUT_TWO_FILE_PATH ("input3.txt")
-#define NBR_TEST_CASES (3)
+Test_Case *get_test_cases(size_t *nbr_tests) {
+    *nbr_tests = 3;
+    Test_Case *test_cases = malloc((*nbr_tests) * sizeof(Test_Case));
+    test_cases[0] = (Test_Case)
+        {
+            .input = "R8,U5,L5,D3\n"  /* line 1 */
+                     "U7,R6,D4,L4\n", /* line 2 */
+            .expected_output = "6",   /* distance */
+            .problem_two = false
+        };
+    test_cases[1] = (Test_Case)
+        {
+            .input = "R75,D30,R83,U83,L12,D49,R71,U7,L72\n" /* line 1 */
+                     "U62,R66,U55,R34,D71,R55,D58,R83\n",   /* line 2 */
+            .expected_output = "159",   /* distance */
+            .problem_two = false
+        };
+    test_cases[2] = (Test_Case)
+        {
+            .input = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\n"  /* line 1 */
+                     "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7\n",        /* line 2 */
+            .expected_output = "135",   /* distance */
+            .problem_two = false
+        };
+    return test_cases;
+}
 
-Test_Case test_cases[NBR_TEST_CASES] =
-    {{"R8,U5,L5,D3\n" /* line 1 */
-         "U7,R6,D4,L4\n" /* line 2 */,
-         "6" /* distance */,
-         false},
-     {"R75,D30,R83,U83,L12,D49,R71,U7,L72\n" /* Line 1 */
-      "U62,R66,U55,R34,D71,R55,D58,R83\n" /* Line 2 */,
-      "159" /* distance */,
-      false},
-     {"R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\n" /* Line 1 */
-      "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7\n", /* Line 2 */
-      "135" /* distance */,
-      false}};
 
-#include "common_main.c"
+char *get_input_file(bool problem_two) {
+    return "input3.txt";
+}
 
 typedef struct Tripple {
     int x;
@@ -107,7 +119,7 @@ int manhattan(Coordinate left, Coordinate right) {
     return distance;
 }
 
-static Coordinate find_closest(Walker *left, Walker *right, boolean problem_two) {
+static Coordinate find_closest(Walker *left, Walker *right, bool problem_two) {
     Coordinate closest = {0, 0, 0};
     int min_distance = 999999999;
     Coordinate l_iter;

@@ -1,20 +1,42 @@
 #include "solver.h"
-#include "tests.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-#define INPUT_ONE_FILE_PATH ("input2a.txt")
-#define INPUT_TWO_FILE_PATH ("input2a.txt")
-#define NBR_TEST_CASES (4)
+Test_Case *get_test_cases(size_t *nbr_tests) {
+    *nbr_tests = 4;
+    Test_Case *test_cases = malloc((*nbr_tests) * sizeof(Test_Case));
+    test_cases[0] = (Test_Case)
+        {
+            .input = "1,0,0,0,99\n",
+            .expected_output = "2,0,0,0,99",
+            .problem_two = false
+        };
+    test_cases[1] = (Test_Case)
+        {
+            .input = "2,3,0,3,99\n",
+            .expected_output = "2,3,0,6,99",
+            .problem_two = false
+        };
+    test_cases[2] = (Test_Case)
+        {
+            .input = "2,4,4,5,99,0\n",
+            .expected_output = "2,4,4,5,99,9801",
+            .problem_two = false
+        };
+    test_cases[3] = (Test_Case)
+        {
+            .input = "1,1,1,4,99,5,6,0,99\n",
+            .expected_output = "30,1,1,4,2,5,6,0,99",
+            .problem_two = false
+        };
+    return test_cases;
+}
 
-Test_Case test_cases[NBR_TEST_CASES] = {
-    {"1,0,0,0,99\n", "2,0,0,0,99", false},
-    {"2,3,0,3,99\n", "2,3,0,6,99", false},
-    {"2,4,4,5,99,0\n", "2,4,4,5,99,9801", false},
-    {"1,1,1,4,99,5,6,0,99\n", "30,1,1,4,2,5,6,0,99", false}
-};
+char *get_input_file(bool problem_two) {
+    return "input2a.txt";
+}
 
-#include "common_main.c"
 
 static bool execute_code(int op_code, long l_operand, long r_operand,
                     int result_idx, long* program, int nbr_of_numbers) {
